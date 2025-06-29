@@ -1,15 +1,18 @@
 PROGRAM_NAME = tinyvm
-COMPILER = gcc
-ASM_COMPILER = nasm
-ASM_FLAGS = -f elf -g -F stabs
+LINK= ld
+# Simple assignment to get sdk path
+SDK_PATH := $(shell xcrun --sdk macosx --show-sdk-path)
+LINK_FLAGS= -lSystem -syslibroot $(SDK_PATH) -e _start -arch arm64 
+ASM_COMPILER = as
+ASM_FLAGS = -arch arm64
 SRC = src/
 OUT = build/
 
 all: $(OUT)main.o
-	$(COMPILER) -o $(PROGRAM_NAME) $(OUT)main.o
+	$(LINK) -o $(OUT)$(PROGRAM_NAME) $(OUT)main.o $(LINK_FLAGS)
 
-$(OUT)main.o: $(SRC)main.asm | $(OUT)
-	$(ASM_COMPILER) $(ASM_FLAGS) -o $(OUT)main.o $(SRC)main.asm
+$(OUT)main.o: $(SRC)main.s | $(OUT)
+	$(ASM_COMPILER) -o $(OUT)main.o $(SRC)main.s $(ASM_FLAGS)
 
 clean:
 	rm -f $(OUT)*.o $(PROGRAM_NAME)
